@@ -28,10 +28,10 @@ var hexputBlockly = (() => {
   });
 
   // src/index.ts
-  function initBlockly(blockly, containerId, toolboxDefinition) {
-    const container = document.getElementById(containerId);
+  function initBlockly(blockly, container, toolboxDefinition) {
+    container = typeof container == "string" ? document.getElementById(container) : container;
     if (!container) {
-      console.error(`Container element with ID '${containerId}' not found.`);
+      console.error(`Container element with ID '${container}' not found.`);
       return;
     }
     let toolbox;
@@ -50,7 +50,7 @@ var hexputBlockly = (() => {
     const hexputGenerator = generateHexputBlockly(blockly);
     blockly.Hexput = hexputGenerator;
     registerCustomBlocks(hexputGenerator);
-    const workspace = blockly.inject(containerId, {
+    const workspace = blockly.inject(container, {
       toolbox,
       // You can add other default options here
       trashcan: true,

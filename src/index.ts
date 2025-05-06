@@ -4,11 +4,11 @@ import type { ToolboxDefinition } from 'blockly/core/utils/toolbox';
 import { HexputGenerator } from './types/HexputGenerator';
 
 // Function to initialize the Blockly environment
-export function initBlockly(blockly: typeof Blockly, containerId: string, toolboxDefinition?: string | Element | ToolboxDefinition): void {
+export function initBlockly(blockly: typeof Blockly, container: Element | string, toolboxDefinition?: string | Element | ToolboxDefinition): void {
     // Find the container element
-    const container = document.getElementById(containerId);
+    container = (typeof container == "string" ?  document.getElementById(container) : container) as any;
     if (!container) {
-        console.error(`Container element with ID '${containerId}' not found.`);
+        console.error(`Container element with ID '${container}' not found.`);
         return;
     }
     
@@ -41,7 +41,7 @@ export function initBlockly(blockly: typeof Blockly, containerId: string, toolbo
     registerCustomBlocks(hexputGenerator);
 
     // Initialize Blockly with the proper toolbox configuration
-    const workspace = blockly.inject(containerId, {
+    const workspace = blockly.inject(container, {
         toolbox: toolbox,
         // You can add other default options here
         trashcan: true,
