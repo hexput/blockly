@@ -58,7 +58,7 @@ export function initBlockly(blockly: typeof Blockly, container: Element | string
  */
 export function generateHexputBlockly(blockly: typeof Blockly): HexputGenerator {
     // Create a new generator instance
-    const hexputGenerator = new blockly.Generator('Hexput') as unknown as HexputGenerator;
+    const hexputGenerator = ((blockly as any).Hexput || new blockly.Generator('Hexput')) as unknown as HexputGenerator;
     
     // Initialize Hexput generator with appropriate settings
     hexputGenerator.init = function(workspace: Workspace) {

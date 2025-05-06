@@ -59,7 +59,7 @@ var hexputBlockly = (() => {
     return workspace;
   }
   function generateHexputBlockly(blockly) {
-    const hexputGenerator = new blockly.Generator("Hexput");
+    const hexputGenerator = blockly.Hexput || new blockly.Generator("Hexput");
     hexputGenerator.init = function(workspace) {
     };
     hexputGenerator.finish = function(code) {
