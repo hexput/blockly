@@ -674,12 +674,12 @@ function defineBlockTypes(blockly: typeof Blockly): void {
         }
     };
 
-    // Function call block - simplified to be a mini block
+    // Function call block - modified to accept any value as function name
     blockly.Blocks['function_call'] = {
         init: function() {
-            this.appendDummyInput()
-                .appendField("call")
-                .appendField(new blockly.FieldTextInput("functionName"), "FUNCTION_NAME");
+            this.appendValueInput("FUNCTION_NAME")
+                .setCheck(null)
+                .appendField("call");
             this.setOutput(true, null);
             this.setNextStatement(true, "FunctionParams");
             this.setColour(160);
@@ -717,15 +717,48 @@ function defineBlockTypes(blockly: typeof Blockly): void {
 }
 
 /**
+ * Adds a custom literal block to Blockly
+ * @param blockly The Blockly instance
+ * @param hexputGenerator The Hexput generator instance
+ * @param literalLabel The display label for the block
+ * @param literalValue The value to be used in code generation
+ * @returns The name of the created block type
+ */
+export function addCustomLiteral(blockly: typeof Blockly, hexputGenerator: HexputGenerator, type: string, literalLabel: string, literalValue: string): string {
+    // Define the block
+    blockly.Blocks[type] = {
+        init: function() {
+            this.appendDummyInput()
+                .appendField(literalLabel);
+            this.setOutput(true, null);
+            this.setColour(330);
+            this.setTooltip(`Custom literal: ${literalLabel}`);
+            this.setHelpUrl('');
+        }
+    };
+    
+    // Define the code generator
+    if (!hexputGenerator.forBlock) {
+        hexputGenerator.forBlock = {};
+    }
+    
+    hexputGenerator.forBlock[type] = function(block: Blockly.Block) {
+        return [literalValue, hexputGenerator.ORDER_ATOMIC];
+    };
+    
+    return type;
+}
+
+/**
  * Register code generators for custom blocks
  * @param generator The generator to register the block generators on
  * @returns The modified generator with registered block handlers
  */
 function registerCustomBlocks(generator: HexputGenerator): HexputGenerator {
-
     if (!generator.forBlock) {
         generator.forBlock = {};
     }
+    
     // Code generators for Hexput language
     generator.forBlock['variable_declaration'] = function(block: Blockly.Block) {
         const varName = block.getFieldValue('VAR_NAME');
@@ -797,6 +830,13 @@ function registerCustomBlocks(generator: HexputGenerator): HexputGenerator {
     generator.forBlock['variable_reference'] = function(block: Blockly.Block) {
         const varName = block.getFieldValue('VAR_NAME');
         return [varName, generator.ORDER_ATOMIC];
+    };
+
+    // Object property access using dot notation
+    generator.forBlock['object_property_access'] = function(block: Blockly.Block) {
+        const object = generator.valueToCode(block, 'OBJECT', generator.ORDER_MEMBER) || 'null';
+        const property = block.getFieldValue('PROPERTY');
+        return [`${object}.${property}`, generator.ORDER_MEMBER];
     };
 
     generator.forBlock['if_statement'] = function(block: Blockly.Block) {
@@ -891,8 +931,18 @@ function registerCustomBlocks(generator: HexputGenerator): HexputGenerator {
 
     // Function call implementation
     generator.forBlock['function_call'] = function(block: Blockly.Block) {
-        const functionName = block.getFieldValue('FUNCTION_NAME');
+        const funcNameCode = generator.valueToCode(block, 'FUNCTION_NAME', generator.ORDER_ATOMIC) || 'undefined';
         const nextBlock = block.nextConnection && block.nextConnection.targetBlock();
+        
+        // Process the function name - if it's a string literal, remove the quotes
+        let functionName = funcNameCode.trim();
+        if (functionName.startsWith('"') && functionName.endsWith('"')) {
+            functionName = functionName.substring(1, functionName.length - 1).trim();
+        }
+
+        if (functionName.startsWith('(') && functionName.endsWith(')')) {
+            functionName = functionName.substring(1, functionName.length - 1).trim();
+        }
         
         // If there are no parameters, just return the function call
         if (!nextBlock) {

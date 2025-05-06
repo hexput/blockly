@@ -104,12 +104,15 @@
             <block type="math_subtract"></block>
             <block type="math_multiply"></block>
             <block type="math_divide"></block>
+            <block type="medicine-aspirin"></block>
+            <block type="medicine-paracetamol"></block>
         </category>
         <category name="Collections" colour="290">
             <block type="array_literal"></block>
             <block type="array_item"></block>
             <block type="object_literal"></block>
             <block type="object_property"></block>
+            <block type="object_property_access"></block>
             <block type="object_bracket_access"></block>
             <block type="array_index_access"></block>
         </category>
@@ -152,11 +155,28 @@
                 document.getElementById('output').textContent = '// Error: Hexput generator not initialized';
                 return;
             }
+            
+            // Add custom literals dynamically
+            const aspirinBlockType = hexputBlockly.addCustomLiteral(
+                Blockly, 
+                Blockly.Hexput, 
+                "medicine-aspirin",
+                "Aspirin", 
+                "medication.aspirin"
+            );
+            
+            const paracetamolBlockType = hexputBlockly.addCustomLiteral(
+                Blockly, 
+                Blockly.Hexput, 
+                "medicine-paracetamol",
+                "Paracetamol", 
+                "medication.paracetamol"
+            );
 
             // Create some starter blocks to demonstrate functionality
             createStarterBlocks();
         });
-
+        
         // Function to generate code from blocks
         function generateCode() {
             if (!Blockly || !Blockly.Hexput) {

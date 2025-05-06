@@ -1,10 +1,11 @@
-import { initBlockly, generateHexputBlockly } from './index';
+import { initBlockly, generateHexputBlockly, addCustomLiteral } from './index';
 
 // Export the API to the window object when used in browser
 const hexputBlockly = {
   initBlockly,
-  generateHexputBlockly
+  generateHexputBlockly,
+  addCustomLiteral
 };
 
-export { initBlockly, generateHexputBlockly };
+export { initBlockly, generateHexputBlockly, addCustomLiteral };
 export default hexputBlockly;

@@ -21,6 +21,7 @@ var hexputBlockly = (() => {
   // src/browser-entry.js
   var browser_entry_exports = {};
   __export(browser_entry_exports, {
+    addCustomLiteral: () => addCustomLiteral,
     default: () => browser_entry_default,
     generateHexputBlockly: () => generateHexputBlockly,
     initBlockly: () => initBlockly
@@ -579,7 +580,7 @@ var hexputBlockly = (() => {
     };
     blockly.Blocks["function_call"] = {
       init: function() {
-        this.appendDummyInput().appendField("call").appendField(new blockly.FieldTextInput("functionName"), "FUNCTION_NAME");
+        this.appendValueInput("FUNCTION_NAME").setCheck(null).appendField("call");
         this.setOutput(true, null);
         this.setNextStatement(true, "FunctionParams");
         this.setColour(160);
@@ -607,6 +608,24 @@ var hexputBlockly = (() => {
         this.setHelpUrl("");
       }
     };
+  }
+  function addCustomLiteral(blockly, hexputGenerator, type, literalLabel, literalValue) {
+    blockly.Blocks[type] = {
+      init: function() {
+        this.appendDummyInput().appendField(literalLabel);
+        this.setOutput(true, null);
+        this.setColour(330);
+        this.setTooltip(`Custom literal: ${literalLabel}`);
+        this.setHelpUrl("");
+      }
+    };
+    if (!hexputGenerator.forBlock) {
+      hexputGenerator.forBlock = {};
+    }
+    hexputGenerator.forBlock[type] = function(block) {
+      return [literalValue, hexputGenerator.ORDER_ATOMIC];
+    };
+    return type;
   }
   function registerCustomBlocks(generator) {
     if (!generator.forBlock) {
@@ -671,6 +690,11 @@ var hexputBlockly = (() => {
     generator.forBlock["variable_reference"] = function(block) {
       const varName = block.getFieldValue("VAR_NAME");
       return [varName, generator.ORDER_ATOMIC];
+    };
+    generator.forBlock["object_property_access"] = function(block) {
+      const object = generator.valueToCode(block, "OBJECT", generator.ORDER_MEMBER) || "null";
+      const property = block.getFieldValue("PROPERTY");
+      return [`${object}.${property}`, generator.ORDER_MEMBER];
     };
     generator.forBlock["if_statement"] = function(block) {
       const condition = generator.valueToCode(block, "CONDITION", generator.ORDER_NONE) || "true";
@@ -747,8 +771,15 @@ ${statements}}
       return [`${array}[${index}]`, generator.ORDER_MEMBER];
     };
     generator.forBlock["function_call"] = function(block) {
-      const functionName = block.getFieldValue("FUNCTION_NAME");
+      const funcNameCode = generator.valueToCode(block, "FUNCTION_NAME", generator.ORDER_ATOMIC) || "undefined";
       const nextBlock = block.nextConnection && block.nextConnection.targetBlock();
+      let functionName = funcNameCode.trim();
+      if (functionName.startsWith('"') && functionName.endsWith('"')) {
+        functionName = functionName.substring(1, functionName.length - 1).trim();
+      }
+      if (functionName.startsWith("(") && functionName.endsWith(")")) {
+        functionName = functionName.substring(1, functionName.length - 1).trim();
+      }
       if (!nextBlock) {
         return [`${functionName}()`, generator.ORDER_FUNCTION_CALL];
       }
@@ -777,7 +808,8 @@ ${statements}}
   // src/browser-entry.js
   var hexputBlockly = {
     initBlockly,
-    generateHexputBlockly
+    generateHexputBlockly,
+    addCustomLiteral
   };
   var browser_entry_default = hexputBlockly;
   return __toCommonJS(browser_entry_exports);
