@@ -1,39 +1,108 @@
-# My Blockly Module
+# Hexput Blockly
 
-This project is a Blockly module designed for creating custom programming blocks for a specific programming language. It provides an easy way to integrate Blockly into your applications and define custom blocks tailored to your needs.
+This project provides a Blockly integration for the Hexput programming language. It allows visual programming through custom blocks that generate Hexput code, making it easier to create Hexput programs without writing code directly.
 
 ## Installation
 
 To install the module, use npm:
 
-```
-npm install my-blockly-module
+```bash
+npm install hexput-blockly
 ```
 
 ## Usage
 
-To use the Blockly module in your project, import it and initialize the Blockly environment:
+To use Hexput Blockly in your project, import it and initialize the Blockly environment:
 
 ```typescript
-import { initializeBlockly } from 'my-blockly-module';
+import Blockly from 'blockly';
+import { initBlockly } from 'hexput-blockly';
 
-initializeBlockly();
+// Initialize Blockly with your container ID and optional toolbox
+initBlockly(Blockly, 'blocklyDiv', yourToolboxDefinition);
+```
+
+## Generating Hexput Code
+
+After creating blocks in the Blockly workspace, you can generate Hexput code:
+
+```typescript
+import Blockly from 'blockly';
+
+// Get the workspace
+const workspace = Blockly.getMainWorkspace();
+
+// Generate Hexput code
+const code = Blockly.Hexput.workspaceToCode(workspace);
+console.log(code);
 ```
 
 ## Custom Blocks
 
-This module allows you to define custom blocks. You can create blocks by extending the provided interfaces in the `src/types/custom_blocks.ts` file. 
+Hexput Blockly provides many custom blocks for the Hexput language:
+
+### Variables and Literals
+- Variable declaration (`vl varName = value`)
+- Number, string, and boolean literals
+- Variable references
+
+### Arrays and Objects
+- Array creation with items
+- Object creation with properties
+- Array and object property access (dot and bracket notation)
+
+### Operators
+- Mathematical operations (addition, subtraction, multiplication, division)
+- Comparison operators (equals, not equals, greater than, less than, etc.)
+- Logical operators (and, or, not)
+
+### Control Flow
+- If statements
+- Loop statements
+
+### Functions
+- Function calls with parameters
 
 ### Example
 
-Here is a simple example of how to define a custom block:
+Here's an example of using blocks to define a variable and perform operations:
 
 ```typescript
-import { defineBlock } from 'my-blockly-module';
+// In Blockly this would be visual blocks generating:
+vl myNumber = 42;
+vl myString = "Hello, world!";
+vl myResult = myNumber + 10;
 
-defineBlock('my_custom_block', {
-    // Block definition goes here
-});
+if myResult > 50 {
+  vl message = myString + " The result is greater than 50!";
+}
+
+loop item in [1, 2, 3] {
+  vl doubled = item * 2;
+}
+```
+
+## Custom Block Definition
+
+To define new blocks for Hexput Blockly, you can extend the module with your own block definitions:
+
+```typescript
+import Blockly from 'blockly';
+import { initBlockly, generateHexputBlockly } from 'hexput-blockly';
+
+// Define your custom block
+Blockly.Blocks['my_custom_block'] = {
+  init: function() {
+    // Block definition logic
+  }
+};
+
+// Define the generator for your custom block
+const hexputGenerator = generateHexputBlockly(Blockly);
+hexputGenerator.forBlock['my_custom_block'] = function(block) {
+  // Code generation logic
+  return 'my custom hexput code';
+};
 ```
 
 ## Contributing
