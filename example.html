@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hexput Blockly Example</title>
+    <!-- Load Blockly first -->
+    <script src="https://unpkg.com/blockly/blockly.min.js"></script>
+    <!-- Load our bundle after Blockly -->
+    <script src="./dist/hexput-blockly.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+        .header {
+            padding: 10px 20px;
+            background-color: #4a6da7;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 1.5em;
+        }
+        .container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+        #blocklyDiv {
+            flex: 2;
+            height: 100%;
+        }
+        .output-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background-color: #f5f5f5;
+            border-left: 1px solid #ddd;
+            overflow: hidden;
+            min-width: 300px;
+        }
+        #output {
+            flex: 1;
+            margin: 0;
+            padding: 10px;
+            background-color: #2d2d2d;
+            color: #f8f8f2;
+            font-family: 'Courier New', Courier, monospace;
+            overflow: auto;
+            white-space: pre;
+        }
+        .toolbar {
+            padding: 10px;
+            background-color: #eee;
+            display: flex;
+            justify-content: space-between;
+        }
+        button {
+            padding: 8px 16px;
+            background-color: #4a6da7;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        button:hover {
+            background-color: #3b5998;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Hexput Blockly Example</h1>
+    </div>
+    <div class="container">
+        <div id="blocklyDiv"></div>
+        <div class="output-panel">
+            <div class="toolbar">
+                <button onclick="generateCode()">Generate Hexput Code</button>
+            </div>
+            <pre id="output">// Generated Hexput code will appear here</pre>
+        </div>
+    </div>
+
+    <!-- Toolbox definition -->
+    <xml id="toolbox" style="display: none">
+        <category name="Variables" colour="230">
+            <block type="variable_declaration"></block>
+            <block type="variable_reference"></block>
+        </category>
+        <category name="Values" colour="160">
+            <block type="number_literal"></block>
+            <block type="string_literal"></block>
+            <block type="boolean_literal"></block>
+            <block type="any_concat"></block>
+            <block type="math_subtract"></block>
+            <block type="math_multiply"></block>
+            <block type="math_divide"></block>
+        </category>
+        <category name="Collections" colour="290">
+            <block type="array_literal"></block>
+            <block type="array_item"></block>
+            <block type="object_literal"></block>
+            <block type="object_property"></block>
+            <block type="object_bracket_access"></block>
+            <block type="array_index_access"></block>
+        </category>
+        <category name="Control" colour="210">
+            <block type="if_statement"></block>
+            <block type="loop_statement"></block>
+            <block type="function_call"></block>
+            <block type="function_params"></block>
+            <block type="function_parameter"></block>
+        </category>
+        <category name="Logic" colour="210">
+            <block type="logic_and"></block>
+            <block type="logic_or"></block>
+            <block type="logic_not"></block>
+            <block type="comparison_eq"></block>
+            <block type="comparison_neq"></block>
+            <block type="comparison_gt"></block>
+            <block type="comparison_lt"></block>
+            <block type="comparison_gte"></block>
+            <block type="comparison_lte"></block>
+        </category>
+    </xml>
+
+    <script>
+        // Initialize when page is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            // Make sure the library is loaded
+            if (!hexputBlockly) {
+                console.error('hexputBlockly library not loaded!');
+                document.getElementById('output').textContent = '// Error: hexputBlockly library not loaded';
+                return;
+            }
+
+            // Initialize Blockly with our custom blocks
+            hexputBlockly.initBlockly(Blockly, 'blocklyDiv');
+            
+            // Verify that Blockly.Hexput is defined
+            if (!Blockly.Hexput) {
+                console.error('Blockly.Hexput is not defined!');
+                document.getElementById('output').textContent = '// Error: Hexput generator not initialized';
+                return;
+            }
+
+            // Create some starter blocks to demonstrate functionality
+            createStarterBlocks();
+        });
+
+        // Function to generate code from blocks
+        function generateCode() {
+            if (!Blockly || !Blockly.Hexput) {
+                document.getElementById('output').textContent = '// Error: Hexput generator not available';
+                return;
+            }
+            
+            const workspace = Blockly.getMainWorkspace();
+            try {
+                // Generate Hexput code
+                const code = Blockly.Hexput.workspaceToCode(workspace);
+                document.getElementById('output').textContent = code || '// No blocks in workspace';
+            } catch (e) {
+                document.getElementById('output').textContent = '// Error generating code: ' + e.message;
+                console.error(e);
+            }
+        }
+
+        // Create some starter blocks for the example
+        function createStarterBlocks() {
+            const workspace = Blockly.getMainWorkspace();
+            
+            // Clear existing blocks
+            workspace.clear();
+
+            // Create a simple variable declaration
+            const varBlock = workspace.newBlock('variable_declaration');
+            varBlock.setFieldValue('greeting', 'VAR_NAME');
+            varBlock.moveBy(50, 50);
+            
+            // Add a string literal
+            const stringBlock = workspace.newBlock('string_literal');
+            stringBlock.setFieldValue('Hello, Hexput!', 'TEXT');
+            stringBlock.moveBy(50, 100);
+            
+            // Connect the string to the variable
+            const connection = varBlock.getInput('VALUE').connection;
+            connection.connect(stringBlock.outputConnection);
+            
+            // Render blocks
+            varBlock.initSvg();
+            varBlock.render();
+            stringBlock.initSvg();
+            stringBlock.render();
+        }
+    </script>
+</body>
+</html>

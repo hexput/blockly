@@ -1,0 +1,26 @@
+{
+  "name": "@hexput/blockly",
+  "version": "1.0.0",
+  "description": "A Blockly module for the Hexput programming language.",
+  "main": "dist/index.js",
+  "private": false,
+  "scripts": {
+    "build": "npm run build:tsc && npm run build:browser",
+    "build:tsc": "tsc",
+    "build:browser": "esbuild src/browser-entry.js --bundle --outfile=dist/hexput-blockly.js --global-name=hexputBlockly --platform=browser --format=iife",
+    "test": "echo \"No tests specified\" && exit 0"
+  },
+  "keywords": [
+    "blockly",
+    "custom-language",
+    "programming",
+    "hexput"
+  ],
+  "author": "Erdem Göksel",
+  "license": "MIT",
+  "devDependencies": {
+    "blockly": "^9.0.0",
+    "typescript": "^4.0.0",
+    "esbuild": "^0.17.0"
+  }
+}
