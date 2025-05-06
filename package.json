@@ -1,8 +1,9 @@
 {
   "name": "@hexput/blockly",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "A Blockly module for the Hexput programming language.",
   "main": "dist/index.js",
+  "types": "src/index.ts",
   "private": false,
   "scripts": {
     "build": "npm run build:tsc && npm run build:browser",
