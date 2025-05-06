@@ -4,7 +4,7 @@ import type { ToolboxDefinition } from 'blockly/core/utils/toolbox';
 import { HexputGenerator } from './types/HexputGenerator';
 
 // Function to initialize the Blockly environment
-export function initBlockly(blockly: typeof Blockly, container: Element | string, toolboxDefinition?: string | Element | ToolboxDefinition): void {
+export function initBlockly(blockly: typeof Blockly, container: Element | string, toolboxDefinition?: string | Element | ToolboxDefinition): Workspace | undefined {
     // Find the container element
     container = (typeof container == "string" ?  document.getElementById(container) : container) as any;
     if (!container) {
@@ -47,6 +47,8 @@ export function initBlockly(blockly: typeof Blockly, container: Element | string
         trashcan: true,
         scrollbars: true,
     });
+
+    return workspace;
 }
 
 /**

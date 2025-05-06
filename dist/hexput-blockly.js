@@ -56,6 +56,7 @@ var hexputBlockly = (() => {
       trashcan: true,
       scrollbars: true
     });
+    return workspace;
   }
   function generateHexputBlockly(blockly) {
     const hexputGenerator = new blockly.Generator("Hexput");
