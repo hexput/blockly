@@ -312,6 +312,28 @@ function defineBlockTypes(blockly: typeof Blockly): void {
         }
     };
 
+    // Return statement block
+    blockly.Blocks['return_statement'] = {
+        init: function() {
+            this.jsonInit({
+                type: 'return_statement',
+                message0: 'res %1',
+                args0: [
+                    {
+                        type: 'input_value', // Changed from field_input
+                        name: 'VALUE',       // Renamed from VAR_NAME for clarity
+                        check: null          // Accept any type of input
+                    }
+                ],
+                previousStatement: null,
+                nextStatement: null,
+                colour: 20, // A distinct color for return statements
+                tooltip: 'Return a value from a function or script.',
+                helpUrl: ''
+            });
+        }
+    };
+
     // Array literal block
     blockly.Blocks['array_literal'] = {
         init: function() {
@@ -805,6 +827,11 @@ function registerCustomBlocks(generator: HexputGenerator): HexputGenerator {
         const valueA = generator.valueToCode(block, 'A', generator.ORDER_DIVISION) || '0';
         const valueB = generator.valueToCode(block, 'B', generator.ORDER_DIVISION) || '0';
         return [`${valueA} / ${valueB}`, generator.ORDER_DIVISION];
+    };
+
+    generator.forBlock['return_statement'] = function(block: Blockly.Block) {
+        const value = generator.valueToCode(block, 'VALUE', generator.ORDER_NONE) || 'null'; // Get value from input
+        return `res ${value};\n`;
     };
 
     generator.forBlock['array_literal'] = function(block: Blockly.Block) {
